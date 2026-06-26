@@ -16,12 +16,38 @@ Built with a Python/FastAPI backend and an Electron + React frontend with a holo
 - **Node.js 18+** ([nodejs.org](https://nodejs.org))
 - Approximately 4GB of free disk space (for dependencies and optional speech models)
 
-### Windows (One-Click — Desktop App)
+### 1. Install Everything
 
-1. Download or clone this repository
-2. Double-click **`Run Jarvis II.bat`**
-3. Wait for the frontend to build (first run only)
-4. The Jarvis desktop window will appear
+**Option A — One-click installer (recommended):** Double-click **`install.bat`** in the project folder. It will set up the Python virtual environment, install all dependencies, and build the frontend.
+
+**Option B — Manual install (3 commands):**
+```batch
+python -m venv venv
+venv\Scripts\pip install -r requirements.txt
+cd electron_frontend && npm install && npx vite build && cd ..
+```
+
+### 2. First Launch
+
+Double-click **`Run Jarvis II.bat`**. This will:
+- Start the Python backend (console window)
+- Launch the Jarvis desktop window with the 3D holographic interface
+- Build the frontend automatically if this is your first time
+
+### 3. Subsequent Launches (Recommended)
+
+Once everything is installed and working, use the **silent launcher** for daily use:
+
+Double-click **`Launch Jarvis (Silent).vbs`** — no console windows, no popups. Logs are written to `%TEMP%\jarvis-boot.log` if you ever need to troubleshoot.
+
+### 4. Enable System Tray Minimize (Recommended)
+
+After Jarvis opens:
+1. Click the **gear icon** (Settings, top-right)
+2. Toggle **"Minimize to system tray"** ON
+3. Closing the window will now minimize Jarvis to your system tray instead of quitting
+
+You can then right-click the tray icon to show or quit Jarvis at any time.
 
 ### Manual Setup (All Platforms)
 
@@ -44,28 +70,9 @@ npm install
 npm run build
 cd ..
 
-# 5. Start Jarvis (web server mode)
-python run.py --server
+# 5. Start Jarvis
+venv\Scripts\python run.py --server   # Web server (browser)
 ```
-
-### Desktop Mode (Electron)
-
-```bash
-cd electron_frontend
-npm install
-npm run electron:build   # Build for production, or
-npm run electron:dev     # Dev mode with hot reload
-```
-
-### Verify It's Running
-
-Open your browser to **http://127.0.0.1:11711**
-
-You should see:
-- Animated 3D sphere scene (holographic interface)
-- Connection status indicator
-- A chat input area
-- System tray icon for background operation
 
 ---
 
