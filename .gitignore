@@ -1,0 +1,63 @@
+# ──────────────────────────────────────────────
+# Jarvis Mark II — .gitignore
+# ──────────────────────────────────────────────
+
+# --- Secrets & API Keys ---
+.env
+.env.*
+*.key
+*.pem
+
+# --- Jarvis Runtime Data (contains API keys) ---
+# Actual runtime config is at ~/.jarvis/ (outside repo)
+# These catch any accidental copies in the project directory
+.jarvis/
+config.json
+registered_apps.json
+
+# --- Python Bytecode ---
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+
+# --- Virtual Environment ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- OS Generated ---
+*.lnk
+
+# --- Build / Dist ---
+dist/
+build/
+*.egg-info/
+*.egg
+
+# --- Node ---
+node_modules/
+
+# --- Logs ---
+*.log
+
+# --- Hermes Agent working files ---
+.hermes/
+
+# --- Backup / Scratch ---
+*.BACKUP
+*_BAK
+test_*.py
+
+# --- Empty data dir ---
+data/
