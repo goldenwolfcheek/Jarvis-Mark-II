@@ -573,6 +573,26 @@ class AgentLoop:
                         tool_call_ids_answered.add(tcid)
 
         messages = [{"role": "system", "content": system_prompt}]
+
+        # Drop orphaned leading TOOL messages so the message list never starts
+        # with a tool message (which would lack its parent assistant with
+        # tool_calls). This can happen when the history window is truncated
+        # mid-turn by get_recent_messages(count=20), and providers like
+        # DeepSeek reject such lists with 400 errors.
+        orphans_dropped = 0
+        while history and history[0]["role"] == "tool" and orphans_dropped < 10:
+            dropped = history.pop(0)
+            tool_call_ids = (
+                [t.get("tool_call_id", "?") for t in dropped.get("tool_results", [])]
+                if isinstance(dropped.get("tool_results"), list)
+                else []
+            )
+            logger.debug(
+                "[MessageBuilder] Dropped orphaned tool message at window boundary "
+                "(tool_call_ids=%s)", tool_call_ids
+            )
+            orphans_dropped += 1
+
         tc_index = 0
         # Flag: set when the most recent assistant message had its tool_calls
         # stripped because not all IDs were answered. Subsequent tool messages
