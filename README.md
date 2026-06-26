@@ -45,7 +45,7 @@ Double-click **`Launch Jarvis (Silent).vbs`** — no console windows, no popups.
 After Jarvis opens:
 1. Click the **gear icon** (Settings, top-right)
 2. Toggle **"Minimize to system tray"** ON
-3. Toggle **Auto-start Jarvis on system boot** ON
+3. Toggle **"Auto-start Jarvis on system boot"** ON
 
 Closing the window will now minimize Jarvis to your system tray instead of quitting and Jarvis will now launch when your system boots.
 
