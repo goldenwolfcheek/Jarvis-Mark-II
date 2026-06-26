@@ -40,12 +40,14 @@ Once everything is installed and working, use the **silent launcher** for daily 
 
 Double-click **`Launch Jarvis (Silent).vbs`** — no console windows, no popups. Logs are written to `%TEMP%\jarvis-boot.log` if you ever need to troubleshoot.
 
-### 4. Enable System Tray Minimize (Recommended)
+### 4. Enable System Tray Minimize & Launch on System Boot (Recommended)
 
 After Jarvis opens:
 1. Click the **gear icon** (Settings, top-right)
 2. Toggle **"Minimize to system tray"** ON
-3. Closing the window will now minimize Jarvis to your system tray instead of quitting
+3. Toggle **"Auto-start Jarvis on system boot"** ON
+
+Closing the window will now minimize Jarvis to your system tray instead of quitting and Jarvis will now launch when your system boots.
 
 You can then right-click the tray icon to show or quit Jarvis at any time.
 
