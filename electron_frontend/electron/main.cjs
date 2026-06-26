@@ -319,6 +319,8 @@ function createWindow() {
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
+    // Clear any stale cached resources from previous runs
+    mainWindow.webContents.session.clearCache().catch(() => {});
     mainWindow.show();
   });
 
@@ -355,6 +357,22 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
       });
   }
+}
+
+// ── Single-instance lock ─────────────────────────────────────────────────────────
+
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  // Another instance is already running — focus its window and quit
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
 }
 
 // ── GPU Resilience ───────────────────────────────────────────────────────────
