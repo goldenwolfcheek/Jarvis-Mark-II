@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { fetchConfig, fetchProviders, fetchModels, fetchVoiceList, fetchSystemInfo, updateConfig, saveProviderKey, deleteProviderKey, testProviderKey } from '../utils/api';
+import { fetchConfig, fetchProviders, fetchModels, fetchVoiceList, fetchSystemInfo, updateConfig, saveProviderKey, deleteProviderKey, testProviderKey, checkForUpdate, applyUpdate, getUpdateStatus } from '../utils/api';
 
 export default function SettingsPanel({ open, onClose, onChange, onKeyAdded }) {
   // ── State ──
@@ -51,6 +51,13 @@ export default function SettingsPanel({ open, onClose, onChange, onKeyAdded }) {
     catch { return false; }
   });
 
+  // ── Update state ──
+  const [updateStatus, setUpdateStatus] = useState(null);  // result from checkForUpdate()
+  const [updateState, setUpdateState] = useState({});       // info from getUpdateStatus()
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [applyingUpdate, setApplyingUpdate] = useState(false);
+  const [updateResult, setUpdateResult] = useState(null);   // result from applyUpdate()
+
   // ── Live uptime ──
   const serverStartRef = useRef(null); // Date.now() approximation of server start
   const [liveUptime, setLiveUptime] = useState(0);
@@ -77,15 +84,17 @@ export default function SettingsPanel({ open, onClose, onChange, onKeyAdded }) {
   // ── Load data when opened ──
   const loadAll = useCallback(async () => {
     try {
-      const [configData, providersData, voicesData, sysData] = await Promise.all([
+      const [configData, providersData, voicesData, sysData, updateData] = await Promise.all([
         fetchConfig().catch(() => ({})),
         fetchProviders().catch(() => ({ profiles: [] })),
         fetchVoiceList(),
         fetchSystemInfo(),
+        getUpdateStatus(),
       ]);
 
       setConfig(configData);
       setSystemInfo(sysData);
+      setUpdateState(updateData || {});
 
       // Process providers
       const rawProfiles = providersData.profiles || providersData.providers || [];
@@ -792,6 +801,78 @@ export default function SettingsPanel({ open, onClose, onChange, onKeyAdded }) {
               </div>
             </Section>
           )}
+
+          {/* ── Updates ── */}
+          <Section title="Updates">
+            <div className="text-xs space-y-2 text-jarvis-muted">
+              <p>
+                <span className="text-jarvis-text/60">Current Version:</span>{' '}
+                <span className="text-jarvis-text font-mono">{updateState.current_version || systemInfo.version || '—'}</span>
+                {updateState.last_checked_at && (
+                  <span className="block text-[10px] mt-0.5">Last checked: {updateState.last_checked_at}</span>
+                )}
+              </p>
+
+              {updateStatus && !updateStatus.error && (
+                <div className={`p-2 rounded-lg ${updateStatus.has_update ? 'bg-yellow-500/10 border border-yellow-500/20' : 'bg-green-500/10 border border-green-500/20'}`}>
+                  {updateStatus.has_update ? (
+                    <div>
+                      <p className="text-yellow-400 font-medium">Update Available</p>
+                      <p className="text-[10px] mt-1 text-jarvis-muted">{updateStatus.commit_message}</p>
+                      <p className="text-[10px] text-jarvis-muted/60">{updateStatus.commit_date}</p>
+                    </div>
+                  ) : (
+                    <p className="text-green-400">You're up to date!</p>
+                  )}
+                </div>
+              )}
+
+              {updateStatus && updateStatus.error && (
+                <p className="text-red-400 text-[10px]">{updateStatus.error}</p>
+              )}
+
+              {updateResult && (
+                <div className={`p-2 rounded-lg ${updateResult.success ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+                  <p className={`text-xs ${updateResult.success ? 'text-green-400' : 'text-red-400'}`}>
+                    {updateResult.success ? '✅ Update applied!' : '❌ Update failed'}
+                  </p>
+                  <p className="text-[10px] mt-1 text-jarvis-muted whitespace-pre-line">{updateResult.message}</p>
+                  {updateResult.success && (
+                    <p className="text-[10px] mt-1 text-yellow-400">Please restart Jarvis for changes to take effect.</p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={async () => {
+                    setCheckingUpdate(true);
+                    setUpdateResult(null);
+                    const result = await checkForUpdate();
+                    setUpdateStatus(result);
+                    setCheckingUpdate(false);
+                  }}
+                  disabled={checkingUpdate}
+                  className="flex-1 py-1.5 rounded-lg text-xs bg-jarvis-accent/10 border border-jarvis-accent/20 hover:bg-jarvis-accent/20 text-jarvis-accent transition-all disabled:opacity-40"
+                >
+                  {checkingUpdate ? 'Checking...' : 'Check for Updates'}
+                </button>
+                <button
+                  onClick={async () => {
+                    setApplyingUpdate(true);
+                    setUpdateResult(null);
+                    const result = await applyUpdate();
+                    setUpdateResult(result);
+                    setApplyingUpdate(false);
+                  }}
+                  disabled={applyingUpdate || !(updateStatus?.has_update)}
+                  className="flex-1 py-1.5 rounded-lg text-xs bg-green-500/20 border border-green-500/30 hover:bg-green-500/30 text-green-400 transition-all disabled:opacity-40"
+                >
+                  {applyingUpdate ? 'Applying...' : 'Apply Update'}
+                </button>
+              </div>
+            </div>
+          </Section>
 
           {/* ── Buttons ── */}
           <div className="flex gap-2 mt-6">

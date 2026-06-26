@@ -171,3 +171,21 @@ export async function touchSession(sessionId) {
   });
   return res.ok;
 }
+
+export async function checkForUpdate() {
+  const res = await fetch(`${API_URL}/api/update/check`, { method: 'POST' }).catch(() => ({ ok: false }));
+  if (!res.ok) return { error: 'Could not check for updates' };
+  return res.json();
+}
+
+export async function applyUpdate() {
+  const res = await fetch(`${API_URL}/api/update/apply`, { method: 'POST' }).catch(() => ({ ok: false }));
+  if (!res.ok) return { success: false, message: 'Could not apply update' };
+  return res.json();
+}
+
+export async function getUpdateStatus() {
+  const res = await fetch(`${API_URL}/api/update`).catch(() => ({ ok: false }));
+  if (!res.ok) return {};
+  return res.json();
+}

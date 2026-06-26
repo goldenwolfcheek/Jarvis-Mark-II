@@ -59,6 +59,7 @@ from .agent.model_discovery import ModelDiscovery
 from .agent.agent_loop import get_agent_loop
 from .providers import ProviderRegistry
 from .security import resolve_api_key, get_keystore
+from . import updater as updater_module
 from datetime import datetime
 import platform
 import logging
@@ -169,6 +170,25 @@ def _register_routes(app: FastAPI):
             "messages": db.get_stats()["messages"],
             "total_tokens": llm.total_tokens,
         }
+
+    # ── Updates ─────────────────────────────────────────────────────────
+
+    @app.get("/api/update")
+    async def update_status():
+        """Get current version and last-checked update state (no GitHub call)."""
+        return updater_module.get_update_status()
+
+    @app.post("/api/update/check")
+    async def check_update():
+        """Check GitHub for newer commits."""
+        result = updater_module.check_for_updates()
+        return result
+
+    @app.post("/api/update/apply")
+    async def apply_update():
+        """Download and apply the latest update."""
+        result = updater_module.apply_update()
+        return result
 
     # ── Config ───────────────────────────────────────────────────────────
 

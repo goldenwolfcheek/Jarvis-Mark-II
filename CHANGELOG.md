@@ -1,5 +1,35 @@
 # Changelog — Jarvis Mark II v2.0.0+
 
+## 2026-06-25 — Auto-Update System & README Improvements
+
+### New Feature: Auto-Update System
+
+Jarvis can now check for and apply updates directly from the GitHub repo:
+
+- **Check for Updates** — Hits the GitHub API, compares the latest commit SHA against the last-applied SHA
+- **Apply Update** — Runs `git pull` in the project directory (preferred), or downloads/extracts a zip fallback if git isn't available
+- **UI** — New "Updates" section in Settings panel with Check and Apply buttons, status display, and version info
+- **Endpoints**: `GET /api/update`, `POST /api/update/check`, `POST /api/update/apply`
+
+### Files Added
+| File | Purpose |
+|------|---------|
+| `jarvis/updater.py` | Update checker and applier module |
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `jarvis/server.py` | Added 3 update endpoints + import |
+| `electron_frontend/src/utils/api.js` | Added `checkForUpdate()`, `applyUpdate()`, `getUpdateStatus()` |
+| `electron_frontend/src/components/SettingsPanel.jsx` | Added "Updates" section in Settings UI |
+
+### README Improvements
+- Rewrote Quick Start to focus on Electron app workflow: install → first launch (.bat) → daily use (.vbs) → system tray minimize
+- Updated project structure table to match committed files
+- Removed references to deleted files (`jarvis.bat`, `install-jarvis.ps1`, `SUMMARY.md`, etc.)
+
+---
+
 ## 2026-06-24 — Code Quality Audit & Dead Code Cleanup
 
 ### Performance / Maintainability
